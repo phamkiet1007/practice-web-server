@@ -1,6 +1,6 @@
 const connection = require('../config/database');
 const { get } = require('../routes/web');
-const {getAllUsers} = require('../services/CRUDService');
+const {getAllUsers, getUserById, updateUserById} = require('../services/CRUDService');
 
 const getHomePage = async (req, res) => {
     let results = await getAllUsers();
@@ -39,16 +39,43 @@ const getCreatePage = (req, res) => {
     res.render('create.ejs');
 }
 
-const getUpdatePage = (req, res) => {
+const getUpdatePage = async (req, res) => {
     const userId = req.params.id;
-    console.log("Params: ", req.params, userId);
-    res.render('edit.ejs');
+
+    let user = await getUserById(userId);
+    res.render('edit.ejs', {userEdit : user});
 }
+
+const postUpdateUser = async (req, res) => {
+    let email = req.body.email;
+    let name = req.body.name;
+    let city = req.body.city;
+    let userId = req.body.userId;
+
+
+    console.log("Request body: ", req.body);
+    console.log("Email: ", email);
+    console.log("Name: ", name);
+    console.log("City: ", city);
+    console.log("User ID: ", userId);
+
+    await updateUserById(email, city, name, userId);
+
+
+    // res.send('Updated user page success');
+    res.redirect('/');
+
+
+    // const [results, fields] = await connection.query('select * from Users u');
+
+};
+
 
 module.exports = {
     getHomePage,
     getSinzuki,
     postCreateUser,
     getCreatePage,
-    getUpdatePage
+    getUpdatePage,
+    postUpdateUser
 };
